@@ -1,48 +1,41 @@
-# 🛍️ Mall Customers Covariance Analysis
+# Mall Customers Covariance Analysis
 
-این پروژه برای تمرین جلسه چهارم تحلیل داده آماده شده است. هدف اصلی پروژه بررسی ارتباط بین ویژگی‌های مشتریان یک فروشگاه است؛ یعنی اینکه ببینیم بین **جنسیت**، **سن**، **درآمد سالانه** و **امتیاز خرج کردن** چه رابطه‌ای وجود دارد.
+This project analyzes a mall customer dataset to explore relationships between customer attributes such as gender, age, annual income, and spending score.
 
-تمرکز اصلی تحلیل روی **Covariance** است، چون در جلسه آخر استاد درباره رابطه بین متغیرها و مفهوم کوواریانس صحبت کرده بود.
+The main focus is on covariance analysis, supported by visual exploration and correlation analysis for easier interpretation.
 
----
+## Project Files
 
-## 📁 فایل‌های پروژه
-
-| فایل | توضیح |
+| File | Description |
 | --- | --- |
-| `Mall_Customers.csv` | دیتاست مشتریان فروشگاه |
-| `mall_customers_covariance_assignment.ipynb` | نوت‌بوک اصلی تمرین برای اجرا و تحویل |
+| `Mall_Customers.csv` | Customer dataset used for the analysis |
+| `mall_customers_covariance_assignment.ipynb` | Jupyter Notebook containing the full analysis workflow |
 
----
+## Dataset Columns
 
-## 📊 ستون‌های دیتاست
-
-| ستون | معنی |
+| Column | Description |
 | --- | --- |
-| `CustomerID` | شناسه هر مشتری |
-| `Gender` | جنسیت مشتری |
-| `Age` | سن مشتری |
-| `Annual Income (k$)` | درآمد سالانه مشتری بر حسب هزار دلار |
-| `Spending Score (1-100)` | امتیاز خرج کردن مشتری از ۱ تا ۱۰۰ |
+| `CustomerID` | Unique customer identifier |
+| `Gender` | Customer gender |
+| `Age` | Customer age |
+| `Annual Income (k$)` | Annual income in thousands of dollars |
+| `Spending Score (1-100)` | Customer spending score from 1 to 100 |
 
----
+## Analysis Goals
 
-## 🧠 ایده اصلی تمرین
+The notebook explores questions such as:
 
-در این تمرین می‌خواهیم بفهمیم:
+- How is customer age related to spending score?
+- Does higher annual income always imply a higher spending score?
+- Is there a visible relationship between gender and other customer attributes?
+- Which feature pairs have positive or negative covariance?
+- How does covariance compare with correlation for interpretation?
 
-- آیا سن مشتری با مقدار خرج کردن او رابطه دارد؟
-- آیا درآمد بیشتر همیشه باعث spending score بالاتر می‌شود؟
-- آیا جنسیت با سن، درآمد یا spending score ارتباط عددی مشخصی دارد؟
-- covariance بین ستون‌های عددی مثبت است یا منفی؟
+## Workflow Overview
 
----
+### 1. Import Libraries
 
-## 🧩 مراحل انجام تحلیل
-
-### 1. Import کتابخانه‌ها
-
-در ابتدای نوت‌بوک کتابخانه‌های مورد نیاز import شده‌اند:
+The notebook uses:
 
 ```python
 import numpy as np
@@ -51,31 +44,27 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 ```
 
-کاربرد هر کتابخانه:
+Library roles:
 
-- `pandas`: خواندن فایل CSV و کار با جدول داده
-- `numpy`: محاسبات عددی
-- `matplotlib`: رسم نمودارهای پایه
-- `seaborn`: رسم نمودارهای آماری زیباتر مثل heatmap و scatter plot
+- `pandas`: loading and manipulating tabular data
+- `numpy`: numerical operations
+- `matplotlib`: basic plotting
+- `seaborn`: statistical visualizations such as scatter plots and heatmaps
 
----
+### 2. Load the Dataset
 
-### 2. خواندن دیتاست
-
-دیتاست با `pd.read_csv` خوانده می‌شود:
+The dataset is loaded from the local CSV file:
 
 ```python
 df = pd.read_csv("Mall_Customers.csv")
 df.head()
 ```
 
-با `head()` چند ردیف اول داده را می‌بینیم تا مطمئن شویم فایل درست خوانده شده است.
+This confirms that the file is readable and shows the first rows of the dataset.
 
----
+### 3. Inspect the Data
 
-### 3. بررسی اولیه داده
-
-در این مرحله ساختار کلی دیتاست بررسی می‌شود:
+The notebook checks the dataset structure:
 
 ```python
 df.shape
@@ -85,19 +74,17 @@ df.isna().sum()
 df.duplicated().sum()
 ```
 
-این بخش کمک می‌کند بفهمیم:
+This step identifies:
 
-- دیتاست چند ردیف و چند ستون دارد
-- نام ستون‌ها چیست
-- نوع داده هر ستون چیست
-- مقدار خالی وجود دارد یا نه
-- ردیف تکراری وجود دارد یا نه
+- number of rows and columns
+- column names
+- data types
+- missing values
+- duplicate rows
 
----
+### 4. Rename Columns
 
-### 4. تغییر نام ستون‌ها
-
-چون بعضی ستون‌ها اسم طولانی دارند، برای راحتی کار اسم آن‌ها کوتاه شده است:
+Long column names are renamed for easier use:
 
 ```python
 df = df.rename(columns={
@@ -106,96 +93,77 @@ df = df.rename(columns={
 })
 ```
 
-بعد از این مرحله، در کدها به جای اسم‌های طولانی از `Income` و `SpendingScore` استفاده می‌شود.
+After this step, `Income` and `SpendingScore` are used throughout the notebook.
 
----
+### 5. Descriptive Statistics
 
-### 5. آمار توصیفی
-
-با `describe()` خلاصه آماری ستون‌های عددی نمایش داده می‌شود:
+The notebook uses `describe()` to summarize numerical columns:
 
 ```python
 df.describe()
 ```
 
-این خروجی شامل مواردی مثل میانگین، انحراف معیار، کمترین مقدار، بیشترین مقدار و چارک‌هاست.
+This gives count, mean, standard deviation, minimum, maximum, and quartile values.
 
----
+### 6. Gender Distribution
 
-### 6. بررسی جنسیت مشتری‌ها
-
-برای دیدن تعداد مشتری‌های زن و مرد از `value_counts()` استفاده شده است:
+The gender distribution is checked with:
 
 ```python
 df["Gender"].value_counts()
 ```
 
-همچنین با نمودار countplot تعداد هر گروه نمایش داده شده است.
+A count plot is also used to visualize the number of customers in each gender group.
 
----
+### 7. Numeric Feature Distributions
 
-### 7. رسم نمودارهای توزیع
+Histograms are created for:
 
-برای ستون‌های عددی مثل سن، درآمد و spending score نمودار histogram رسم شده است:
+- age
+- annual income
+- spending score
 
-```python
-df[numeric_cols].hist(...)
-```
+These charts help show how the values are distributed across the dataset.
 
-این نمودارها کمک می‌کنند بفهمیم داده‌ها بیشتر در چه بازه‌هایی قرار دارند.
+### 8. Grouped Averages by Gender
 
----
-
-### 8. مقایسه میانگین‌ها بر اساس جنسیت
-
-با `groupby` میانگین سن، درآمد و spending score برای هر جنسیت محاسبه شده است:
+The notebook compares average age, income, and spending score by gender:
 
 ```python
 df.groupby("Gender")[["Age", "Income", "SpendingScore"]].mean()
 ```
 
-این مرحله یک نگاه کلی می‌دهد که آیا بین میانگین گروه‌ها تفاوتی دیده می‌شود یا نه.
+This provides a simple group-level summary before moving into covariance analysis.
 
----
+### 9. Encode Gender
 
-### 9. تبدیل جنسیت به عدد
-
-چون covariance فقط با داده عددی محاسبه می‌شود، ستون `Gender` به عدد تبدیل شده است:
+Because covariance requires numeric values, the `Gender` column is encoded:
 
 ```python
 df["Gender_ID"] = df["Gender"].map({"Female": 0, "Male": 1})
 ```
 
-در این کد:
+This encoding is only used to make the categorical feature usable in numerical analysis. It does not imply any ranking between gender values.
 
-- `Female` برابر ۰ در نظر گرفته شده
-- `Male` برابر ۱ در نظر گرفته شده
+### 10. Relationship Visualizations
 
-این فقط یک کدگذاری ساده است و به معنی برتری عددی یک گروه نسبت به گروه دیگر نیست.
+Scatter plots are used to visually inspect relationships between:
 
----
+- income and spending score
+- age and spending score
+- age and income
 
-### 10. رسم نمودارهای رابطه‌ای
-
-برای بررسی رابطه ظاهری بین ستون‌ها از scatter plot استفاده شده است:
-
-- رابطه درآمد و spending score
-- رابطه سن و spending score
-- رابطه سن و درآمد
-
-نمونه:
+Example:
 
 ```python
 sns.scatterplot(data=df, x="Income", y="SpendingScore", hue="Gender")
 ```
 
-این نمودارها قبل از محاسبه covariance کمک می‌کنند رابطه‌ها را با چشم ببینیم.
+These plots provide an initial visual understanding before calculating covariance.
 
----
+### 11. Covariance Matrix
 
-### 11. محاسبه Covariance
-
-مهم‌ترین بخش تمرین همین قسمت است:
+The central part of the project is the covariance matrix:
 
 ```python
 analysis_df = df[["Gender_ID", "Age", "Income", "SpendingScore"]]
@@ -203,77 +171,66 @@ cov_matrix = analysis_df.cov()
 cov_matrix
 ```
 
-مفهوم covariance:
+Covariance interpretation:
 
-- اگر covariance مثبت باشد، دو متغیر معمولاً در یک جهت حرکت می‌کنند.
-- اگر covariance منفی باشد، با زیاد شدن یکی، دیگری معمولاً کم می‌شود.
-- اگر covariance نزدیک صفر باشد، رابطه خطی واضحی دیده نمی‌شود.
+- Positive covariance means two variables tend to move in the same direction.
+- Negative covariance means one variable tends to increase while the other decreases.
+- A value near zero suggests no clear linear movement between the two variables.
 
-نکته مهم: مقدار covariance به مقیاس داده وابسته است، پس برای مقایسه شدت رابطه‌ها همیشه بهترین معیار نیست.
+Important note: covariance depends on the scale of the variables, so its magnitude is not always easy to compare across different feature pairs.
 
----
+### 12. Covariance Heatmap
 
-### 12. نمایش Covariance با Heatmap
-
-برای خواناتر شدن ماتریس covariance از heatmap استفاده شده است:
+The covariance matrix is visualized with a heatmap:
 
 ```python
 sns.heatmap(cov_matrix, annot=True, fmt=".2f", cmap="Blues")
 ```
 
-در این نمودار، رنگ‌ها کمک می‌کنند مقدارهای مثبت و منفی بهتر دیده شوند.
+The heatmap makes positive and negative relationships easier to scan.
 
----
+### 13. Pairwise Covariance Table
 
-### 13. جدول زوج‌به‌زوج Covariance
+The notebook also builds a pairwise covariance table to make feature-by-feature interpretation clearer.
 
-برای اینکه ارتباط هر دو ستون راحت‌تر خوانده شود، covarianceها به شکل جدول مرتب شده‌اند.
+This helps identify:
 
-در این بخش مشخص می‌شود مثلاً:
+- covariance between age and spending score
+- covariance between income and spending score
+- whether each relationship is positive or negative
 
-- covariance بین `Age` و `SpendingScore` چقدر است
-- covariance بین `Income` و `SpendingScore` مثبت است یا منفی
-- رابطه کلی هر زوج ستون در چه جهتی است
+### 14. Correlation Matrix
 
----
-
-### 14. Correlation برای تفسیر بهتر
-
-در پایان، correlation هم محاسبه شده است:
+Correlation is calculated as a standardized companion to covariance:
 
 ```python
 corr_matrix = analysis_df.corr()
 ```
 
-دلیل اضافه شدن correlation این است که covariance به مقیاس داده وابسته است، اما correlation همیشه بین `-1` و `1` قرار می‌گیرد و تفسیرش ساده‌تر است.
+Unlike covariance, correlation always ranges from `-1` to `1`, making it easier to compare relationship strength across feature pairs.
 
----
+## Key Takeaways
 
-## ✅ نتیجه کلی
+- Covariance helps identify the direction of movement between variables.
+- Correlation is easier to interpret when comparing relationship strength.
+- Visualizations such as scatter plots and heatmaps make numerical relationships easier to understand.
+- Encoding categorical values is necessary before using them in numerical covariance calculations.
 
-این تمرین نشان می‌دهد چطور می‌توان با استفاده از ابزارهای ساده تحلیل داده، رابطه بین ویژگی‌های مختلف مشتری‌ها را بررسی کرد.
+## How to Run
 
-مهم‌ترین بخش پروژه، محاسبه و تفسیر **covariance** بین ستون‌های عددی است. نمودارها و correlation هم برای کمک به فهم بهتر رابطه‌ها استفاده شده‌اند.
+1. Open `mall_customers_covariance_assignment.ipynb` in Jupyter Notebook, JupyterLab, or VS Code.
+2. Make sure `Mall_Customers.csv` is in the same directory as the notebook.
+3. Run the notebook cells from top to bottom.
+4. Review the printed outputs, tables, and charts.
 
----
+## Requirements
 
-## ▶️ نحوه اجرا
-
-1. فایل `mall_customers_covariance_assignment.ipynb` را در Jupyter Notebook یا VS Code باز کنید.
-2. مطمئن شوید فایل `Mall_Customers.csv` کنار notebook قرار دارد.
-3. سلول‌ها را از بالا به پایین اجرا کنید.
-4. خروجی هر مرحله را بررسی کنید.
-
----
-
-## 🧰 کتابخانه‌های مورد نیاز
+Install the required libraries with:
 
 ```bash
 pip install numpy pandas matplotlib seaborn
 ```
 
----
+## Summary
 
-## ✨ نکته پایانی
-
-این پروژه به صورت مرحله‌ای نوشته شده تا هر قسمت از تحلیل جداگانه قابل اجرا و بررسی باشد. هدف فقط گرفتن خروجی نیست؛ هدف این است که بفهمیم هر مرحله چرا انجام شده و چه کمکی به تحلیل رابطه بین داده‌ها می‌کند.
+This project provides a step-by-step covariance-based analysis of mall customer attributes. It combines data inspection, visualization, covariance, and correlation to understand how customer features relate to each other.
